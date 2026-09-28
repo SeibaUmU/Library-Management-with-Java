@@ -409,9 +409,32 @@
 }
 
 ```
+### **2.6: Đăng xuất (** **UC-06** **)**[2]
 
+* **Action:** **LOGOUT** (Giải phóng phiên làm việc Socket trên Server)[2]
+  * **Request:**
+
+```
+{
+  "action": "LOGOUT",
+  "data": {
+    "username": "docgia01"
+  }
+}
+
+```
+
+* **Response:**
+
+```
+{
+  "status": "SUCCESS",
+  "message": "Đăng xuất khỏi hệ thống thành công",
+  "data": null
+}
+```
 ---
-#### **2.6\. Đặt trước &amp; Gia hạn sách (** **UC-07** **/** **UC-09** **)**[1][20]
+#### **2.7\. Đặt trước &amp; Gia hạn sách (** **UC-07** **/** **UC-09** **)**[1][20]
 
 * **Action:** **RESERVE\_BOOK**
   * **Request (Độc giả đặt trước khi sách hết trong kho):**[21][22]
@@ -472,10 +495,314 @@
 }
 
 ```
+### **2.8. Xem lịch sử mượn / hạn trả (** **UC-08** **)**[1]
 
+* **Action:** **GET\_BORROW\_HISTORY** (Độc giả hoặc Thủ thư xem danh sách sách đã/đang mượn)[1]
+  * **Request:**
+
+```
+{
+  "action": "GET_BORROW_HISTORY",
+  "data": {
+    "username": "docgia01"
+  }
+}
+
+```
+
+* **Response:**
+
+```
+{
+  "status": "SUCCESS",
+  "message": "Tải lịch sử mượn trả thành công",
+  "data": {
+    "username": "docgia01",
+    "history": [
+      {
+        "borrowId": "PM2026092701",
+        "borrowDate": "2026-09-27T10:15:00",
+        "bookItemId": "BS001-01",
+        "bookTitle": "Lập trình Java Nâng Cao",
+        "dueDate": "2026-10-11",
+        "returnDate": null,
+        "renewCount": 0,
+        "status": "BORROWING"
+      },
+      {
+        "borrowId": "PM2026080101",
+        "borrowDate": "2026-08-01T09:00:00",
+        "bookItemId": "BS002-01",
+        "bookTitle": "Java Persistence API (JPA)",
+        "dueDate": "2026-08-15",
+        "returnDate": "2026-08-14",
+        "renewCount": 1,
+        "status": "RETURNED"
+      }
+    ]
+  }
+}
+```
+### **2.9. Nhận thông báo sách đặt trước (** **UC-10** **)**[2]
+
+* **Action:** **GET\_NOTIFICATIONS** (Gửi thông báo khi sách được đặt giữ chỗ đã trả về kho)[2]
+  * **Request:**
+
+```
+{
+  "action": "GET_NOTIFICATIONS",
+  "data": {
+    "username": "docgia01"
+  }
+}
+
+```
+
+* **Response:**
+
+```
+{
+  "status": "SUCCESS",
+  "message": "Lấy danh sách thông báo thành công",
+  "data": {
+    "notifications": [
+      {
+        "reservationId": 501,
+        "isbn": "978-604-02",
+        "bookTitle": "Java Persistence API (JPA)",
+        "message": "Sách bạn đặt trước đã được trả về quầy. Vui lòng đến nhận trong vòng 3 ngày.",
+        "notifiedDate": "2026-09-27T14:20:00",
+        "holdExpiryDate": "2026-09-30T23:59:59",
+        "status": "NOTIFIED"
+      }
+    ]
+  }
+}
+```
+### **2.10. Quản lý Độc giả / Thẻ thư viện (** **UC-11** **)**[1][3]
+
+* **Action:** **CREATE\_READER** (Thủ thư đăng ký thẻ thư viện mới cho độc giả)[1][4]
+  * **Request (Client gửi):**
+
+```
+{
+  "action": "CREATE_READER",
+  "data": {
+    "username": "docgia02",
+    "password": "defaultPassword123",
+    "fullName": "Trần Thị B",
+    "email": "tranthib@gmail.com",
+    "phone": "0912345678",
+    "expiryDate": "2027-09-27"
+  }
+}
+
+```
+
+* **Response (Server trả về):**
+
+```
+{
+  "status": "SUCCESS",
+  "message": "Đăng ký thẻ độc giả mới thành công!",
+  "data": {
+    "username": "docgia02",
+    "fullName": "Trần Thị B",
+    "role": "READER",
+    "createdDate": "2026-09-27T08:00:00",
+    "expiryDate": "2027-09-27",
+    "status": "ACTIVE"
+  }
+}
+
+```
+
+* **Action:** **LOCK\_READER** (Khóa thẻ độc giả do vi phạm/nợ phạt)[4]
+  * **Request:**
+
+```
+{
+  "action": "LOCK_READER",
+  "data": {
+    "username": "docgia02",
+    "reason": "Nợ phạt trễ hạn quá 30 ngày chưa thanh toán"
+  }
+}
+
+```
+
+* **Response:**
+
+```
+{
+  "status": "SUCCESS",
+  "message": "Cập nhật trạng thái khóa thẻ độc giả thành công",
+  "data": {
+    "username": "docgia02",
+    "status": "BLOCKED"
+  }
+}
+```
+
+
+### **2.11. Quản lý Kho sách &amp; Danh mục (** **UC-12** **)**[2]
+
+* **Action:** **ADD\_BOOK\_TITLE** (Thêm đầu sách/tác phẩm mới nhập về)[5]
+  * **Request:**
+
+```
+{
+  "action": "ADD_BOOK_TITLE",
+  "data": {
+    "isbn": "978-604-03",
+    "title": "Cấu trúc dữ liệu &amp; Giải thuật Java",
+    "author": "Lê Văn D",
+    "publisher": "NXB Đại học Quốc gia",
+    "publishYear": 2025,
+    "category": "Công nghệ",
+    "price": 200000.0,
+    "imageUrl": "/images/ds003.jpg",
+    "location": "Kệ A3 - Tầng 2"
+  }
+}
+
+```
+
+* **Response:**
+
+```
+{
+  "status": "SUCCESS",
+  "message": "Thêm đầu sách mới thành công",
+  "data": {
+    "isbn": "978-604-03",
+    "title": "Cấu trúc dữ liệu &amp; Giải thuật Java",
+    "totalQuantity": 0,
+    "availableQuantity": 0
+  }
+}
+
+```
+
+* **Action:** **ADD\_BOOK\_ITEM** (Thêm các bản sao vật lý / dán mã vạch riêng từng cuốn)[6]
+  * **Request:**
+
+```
+{
+  "action": "ADD_BOOK_ITEM",
+  "data": {
+    "isbn": "978-604-03",
+    "bookItemIds": ["BS003-01", "BS003-02", "BS003-03"]
+  }
+}
+
+```
+
+* **Response:**
+
+```
+{
+  "status": "SUCCESS",
+  "message": "Đã nhập 3 cuốn sách vật lý vào kho",
+  "data": {
+    "isbn": "978-604-03",
+    "addedQuantity": 3,
+    "totalQuantity": 3,
+    "availableQuantity": 3
+  }
+}
+```
+### **2.12. Kiểm tra điều kiện thẻ (** **UC-13** **)**[2]
+
+* **Action:** **CHECK\_CARD\_CONDITION** (Sử dụng ngầm khi lập phiếu mượn `UC-01` để kiểm tra điều kiện mượn)[4][11]
+  * **Request:**
+
+```
+{
+  "action": "CHECK_CARD_CONDITION",
+  "data": {
+    "username": "docgia01"
+  }
+}
+
+```
+
+* **Response (Đủ điều kiện):**
+
+```
+{
+  "status": "SUCCESS",
+  "message": "Thẻ hợp lệ, đủ điều kiện mượn sách",
+  "data": {
+    "username": "docgia01",
+    "cardStatus": "ACTIVE",
+    "isExpired": false,
+    "currentBorrowCount": 2,
+    "maxBorrowCount": 5,
+    "hasUnpaidFine": false,
+    "hasOverdueBook": false,
+    "eligibleToBorrow": true
+  }
+}
+
+```
+
+* **Response (Vi phạm điều kiện):**
+
+```
+{
+  "status": "ERROR",
+  "message": "Thẻ không đủ điều kiện mượn: Đang mượn tối đa 5/5 cuốn và có 1 khoản phạt chưa thanh toán",
+  "data": {
+    "username": "docgia01",
+    "cardStatus": "BLOCKED",
+    "isExpired": false,
+    "currentBorrowCount": 5,
+    "maxBorrowCount": 5,
+    "hasUnpaidFine": true,
+    "hasOverdueBook": true,
+    "eligibleToBorrow": false
+  }
+}
+```
+### **2.13. Quản lý Thủ thư (** **UC-15** **)**[2][3]
+
+* **Action:** **CREATE\_LIBRARIAN** (Admin cấp tài khoản cho Thủ thư mới)[2][3]
+  * **Request:**
+
+```
+{
+  "action": "CREATE_LIBRARIAN",
+  "data": {
+    "username": "thuthu02",
+    "password": "librarianPass123",
+    "fullName": "Phạm Văn E",
+    "email": "phamvane@library.edu.vn",
+    "phone": "0988888888"
+  }
+}
+
+```
+
+* **Response:**
+
+```
+{
+  "status": "SUCCESS",
+  "message": "Tạo tài khoản thủ thư thành công",
+  "data": {
+    "username": "thuthu02",
+    "fullName": "Phạm Văn E",
+    "role": "LIBRARIAN",
+    "status": "ACTIVE",
+    "createdDate": "2026-09-27T09:00:00"
+  }
+}
+
+```
 ---
 
-#### **2.7\. Thống kê &amp; Báo cáo (** **UC-16** **)**[1][2]
+#### **2.14. Thống kê &amp; Báo cáo (** **UC-16** **)**[1][2]
 
 * **Action:** **GET\_REPORTS**
   * **Request:**[2]
