@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+
+    <!-- Persistence Unit dùng để khởi tạo EntityManagerFactory -->
+    <persistence-unit name="LibraryPU" transaction-type="RESOURCE_LOCAL">
+        <!-- Khai báo Provider thực thi (Hibernate) -->
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <!-- Khai báo danh sách các lớp Entity trong hệ thống (Optional trong Java SE nhưng nên ghi rõ) -->
+        <class>com.library.entity.UserAccount</class>
+        <class>com.library.entity.BookTitle</class>
+        <class>com.library.entity.BookItem</class>
+        <class>com.library.entity.BorrowTicket</class>
+        <class>com.library.entity.BorrowDetail</class>
+        <class>com.library.entity.FineTicket</class>
+        <class>com.library.entity.Reservation</class>
+        <class>com.library.entity.SystemConfig</class>
+
+        <properties>
+            <!-- 1. Cấu hình Kết nối CSDL (Sql server) -->
+            <property name="jakarta.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlserver://localhost:1433;databaseName=library_db;encrypt=true;trustServerCertificate=true;"/>
+            <property name="jakarta.persistence.jdbc.user" value="sa"/>
+            <property name="jakarta.persistence.jdbc.password" value="12345678"/>
+            
+
+            <!-- 2. Chiến lược Tự động Ánh xạ/Sinh bảng (DDL) -->
+            <!-- 'update': Tự động tạo bảng nếu chưa có, hoặc cập nhật thêm cột mới (An toàn nhất khi phát triển) -->
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+
+            <!-- 3. Cấu hình Hiển thị & Định dạng SQL trên Console Server -->
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.highlight_sql" value="true"/>
+
+            <!-- 4. Cấu hình Bảng mã Tiếng Việt UTF-8 -->
+            <property name="hibernate.connection.characterEncoding" value="UTF-8"/>
+            <property name="hibernate.connection.charSet" value="UTF-8"/>
+            <property name="hibernate.connection.useUnicode" value="true"/>
+
+            <!-- 5. Tối ưu hóa Connection Pool (HikariCP / c3p0 ngầm định) -->
+            <property name="hibernate.connection.pool_size" value="10"/>
+        </properties>
+    </persistence-unit>
+</persistence>
