@@ -1,0 +1,27 @@
+Nhấn Win + R, gõ tên file theo phiên bản SQL Server rồi Enter:
+2025	SQLServerManager17.msc
+2022	SQLServerManager16.msc
+2019	SQLServerManager15.msc
+
+Bước 1. Cố định cổng 1433
+Mở Start, gõ SQL Server Configuration Manager, rồi vào SQL Server Network Configuration → Protocols for SQLEXPRESS → TCP/IP:
+
+Chuyển Enabled thành Yes.
+Vào tab IP Addresses, kéo xuống mục IPAll: xoá trống TCP Dynamic Ports và đặt TCP Port = 1433.
+Vào SQL Server Services, chuột phải SQL Server (SQLEXPRESS) rồi chọn Restart.
+
+Bước 2. Bật đăng nhập sa
+
+Trong SSMS, chuột phải tên server → Properties → Security, chọn SQL Server and Windows Authentication mode, bấm OK.
+Mở New Query (đang kết nối bằng Windows Authentication) và chạy:
+sql
+ALTER LOGIN sa ENABLE;
+ALTER LOGIN sa WITH PASSWORD = '12345678', CHECK_POLICY = OFF;
+Restart service SQL Server (SQLEXPRESS) lần nữa.
+
+Bước 3. Kiểm tra lại
+
+powershell
+Test-NetConnection localhost -Port 1433
+
+Khi TcpTestSucceeded : True thì chạy lại LibraryServer.
