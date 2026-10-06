@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.library.dao.EntityManagerUtil;
+import com.library.repository.EntityManagerUtil;
 
 public class LibraryServer {
 

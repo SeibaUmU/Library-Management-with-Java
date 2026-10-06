@@ -10,26 +10,31 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
         <!-- Khai báo danh sách các lớp Entity trong hệ thống (Optional trong Java SE nhưng nên ghi rõ) -->
-        <class>com.library.entity.UserAccount</class>
-        <class>com.library.entity.BookTitle</class>
-        <class>com.library.entity.BookItem</class>
-        <class>com.library.entity.BorrowTicket</class>
-        <class>com.library.entity.BorrowDetail</class>
-        <class>com.library.entity.FineTicket</class>
-        <class>com.library.entity.Reservation</class>
-        <class>com.library.entity.SystemConfig</class>
+        <class>com.library.entity.VaiTro</class>
+        <class>com.library.entity.NguoiDung</class>
+        <class>com.library.entity.TheDocGia</class>
+        <class>com.library.entity.TacGia</class>
+        <class>com.library.entity.TheLoai</class>
+        <class>com.library.entity.NhaXuatBan</class>
+        <class>com.library.entity.DauSach</class>
+        <class>com.library.entity.CuonSach</class>
+        <class>com.library.entity.PhieuMuon</class>
+        <class>com.library.entity.ChiTietPhieuMuon</class>
+        <class>com.library.entity.PhieuPhat</class>
+        <class>com.library.entity.DatTruoc</class>
+        <class>com.library.entity.CauHinh</class>
 
         <properties>
             <!-- 1. Cấu hình Kết nối CSDL (Sql server) -->
             <property name="jakarta.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlserver://localhost:1433;databaseName=library_db;encrypt=true;trustServerCertificate=true;"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlserver://localhost:1433;databaseName=QLThuVien;encrypt=true;trustServerCertificate=true;"/>
             <property name="jakarta.persistence.jdbc.user" value="sa"/>
             <property name="jakarta.persistence.jdbc.password" value="12345678"/>
             
 
             <!-- 2. Chiến lược Tự động Ánh xạ/Sinh bảng (DDL) -->
             <!-- 'update': Tự động tạo bảng nếu chưa có, hoặc cập nhật thêm cột mới (An toàn nhất khi phát triển) -->
-            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.hbm2ddl.auto" value="none"/>
 
             <!-- 3. Cấu hình Hiển thị & Định dạng SQL trên Console Server -->
             <property name="hibernate.show_sql" value="true"/>
