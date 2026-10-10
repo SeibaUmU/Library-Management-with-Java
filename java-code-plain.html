@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Java code</title>
+<style>html,body{background:#fff;color:#000;margin:0}pre{margin:0;padding:12px;font:14px/1.45 monospace;white-space:pre;overflow-x:auto}</style>
+</head>
+<body>
+<pre>===== objectmodelapi/JavaPSpace.java =====
+
+package objectmodelapi;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.List;
+
+import entities.SpaceMission;
+import entities.SpaceModule;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonArrayBuilder;
+import jakarta.json.JsonObjectBuilder;
+import jakarta.json.JsonWriter;
+
+public class JavaPSpace {
+
+    // 2a. Dùng Object Model API để tạo tài liệu JSON
+    public String generateJsonString(List&lt;SpaceModule&gt; modules) {
+        JsonArrayBuilder rootArrayBuilder = Json.createArrayBuilder();
+
+        for (SpaceModule module : modules) {
+            // Build array cho crewMembers
+            JsonArrayBuilder crewBuilder = Json.createArrayBuilder();
+            for (String member : module.getCrewMembers()) {
+                crewBuilder.add(member);
+            }
+
+            // Build array cho missions
+            JsonArrayBuilder missionBuilder = Json.createArrayBuilder();
+            for (SpaceMission mission : module.getMissions()) {
+                JsonObjectBuilder mBuilder = Json.createObjectBuilder()
+                        .add("missionCode", mission.getMissionCode())
+                        .add("missionTitle", mission.getMissionTitle())
+                        .add("priority", mission.getPriority())
+                        .add("launchDate", mission.getLaunchDate())
+                        .add("estimatedCost", mission.getEstimatedCost())
+                        .add("completed", mission.isCompleted());
+                missionBuilder.add(mBuilder);
+            }
+
+            // Build object cho SpaceModule
+            JsonObjectBuilder moduleBuilder = Json.createObjectBuilder()
+                    .add("stationCode", module.getStationCode())
+                    .add("stationName", module.getStationName())
+                    .add("orbitNumber", module.getOrbitNumber())
+                    .add("crewCapacity", module.getCrewCapacity())
+                    .add("energyLevel", module.getEnergyLevel())
+                    .add("crewMembers", crewBuilder)
+                    .add("missions", missionBuilder);
+
+            rootArrayBuilder.add(moduleBuilder);
+        }
+
+        JsonArray jsonArray = rootArrayBuilder.build();
+        
+        // Trả về chuỗi JSON
+        try (StringWriter stringWriter = new StringWriter();
+             JsonWriter jsonWriter = Json.createWriter(stringWriter)) {
+            jsonWriter.writeArray(jsonArray);
+            return stringWriter.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // 2b. Ghi thành file json
+    public void writeJsonToFile(String jsonString, String fileName) {
+        try (FileWriter fileWriter = new FileWriter(fileName)) {
+            fileWriter.write(jsonString);
+            System.out.println("Đã ghi file thành công: " + fileName);
+        } catch (IOException e) {
+            System.err.println("Lỗi khi ghi file: " + e.getMessage());
+        }
+    }
+}
+
+
+===== objectmodelapi/JPSmain.java =====
+
+package objectmodelapi;
+
+import java.util.Arrays;
+import java.util.List;
+
+import entities.SpaceMission;
+import entities.SpaceModule;
+
+public class JPSmain {
+    public static void main(String[] args) {
+        // Tạo dữ liệu mổ phỏng theo đề bài
+        SpaceMission m1 = new SpaceMission("MARS-X26", "Khảo sát nguồn nước Sao Hỏa", 4, "2026-05-15", 15000000.5, false);
+        SpaceMission m2 = new SpaceMission("LUNA-B07", "Thu thập mẫu đất Mặt Trăng", 5, "2026-07-22", 12800000.0, false);
+        SpaceMission m3 = new SpaceMission("AST-309", "Quan sát tiểu hành tinh 309", 3, "2026-09-10", 9500000.75, true);
+
+        SpaceModule module = new SpaceModule(
+                "ORB-KB01",
+                "Kibo Research Hub",
+                5821,
+                12,
+                87.5,
+                Arrays.asList("John Doe", "Elena Rostova"),
+                Arrays.asList(m1, m2, m3)
+        );
+
+        List&lt;SpaceModule&gt; moduleList = Arrays.asList(module);
+
+        JavaPSpace processor = new JavaPSpace();
+        
+        // Gọi hàm tạo JSON String (2a)
+        String jsonOutput = processor.generateJsonString(moduleList);
+        
+        // Gọi hàm ghi file (2b)
+        if (jsonOutput != null) {
+            processor.writeJsonToFile(jsonOutput, "NguyenManhThang_23673811.json");
+        }
+    }
+}
+
+
+===== objectmodelapi/JsonCentralController.java =====
+
+package objectmodelapi;
+
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
+
+import entities.CentralController;
+import entities.GreenHouse;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonNumber;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonValue;
+
+public class JsonCentralController {
+
+    // 2a. Dùng Object Model API để đọc tài liệu Json và bóc tách dữ liệu
+    public List&lt;CentralController&gt; readJsonFile(String filePath) {
+        List&lt;CentralController&gt; controllers = new ArrayList&lt;&gt;();
+
+        try (JsonReader reader = Json.createReader(new FileReader(filePath))) {
+            JsonArray rootArray = reader.readArray();
+
+            for (JsonValue jsonValue : rootArray) {
+                JsonObject obj = jsonValue.asJsonObject();
+
+                // Lấy các thuộc tính cơ bản
+                String deviceSerial = obj.getString("deviceSerial");
+                
+                // Xử lý các object có thể rỗng (dựa theo ảnh có 1 object trống ở cuối)
+                if (!obj.containsKey("firmwareVersion")) continue; 
+
+                String firmwareVersion = obj.getString("firmwareVersion");
+                int sensorCount = obj.getInt("sensorCount");
+                double batteryPercent = obj.getJsonNumber("batteryPercent").doubleValue();
+                boolean automaticMode = obj.getBoolean("automaticMode");
+                String lastMaintenanceDate = obj.getString("lastMaintenanceDate");
+
+                // Đọc mảng sensorPins
+                List&lt;Integer&gt; sensorPins = new ArrayList&lt;&gt;();
+                JsonArray pinsArray = obj.getJsonArray("sensorPins");
+                for (JsonValue pinVal : pinsArray) {
+                    sensorPins.add(((JsonNumber) pinVal).intValue());
+                }
+
+                // Đọc mảng greenhouses
+                List&lt;GreenHouse&gt; greenhouses = new ArrayList&lt;&gt;();
+                JsonArray housesArray = obj.getJsonArray("greenhouses");
+                for (JsonValue houseVal : housesArray) {
+                    JsonObject hObj = houseVal.asJsonObject();
+                    GreenHouse gh = new GreenHouse(
+                            hObj.getInt("houseNumber"),
+                            hObj.getString("cropType"),
+                            hObj.getJsonNumber("lengthMeter").doubleValue(),
+                            hObj.getJsonNumber("lightIntensity").doubleValue(),
+                            hObj.getInt("waterTankLiter"),
+                            hObj.getBoolean("irrigationEnabled")
+                    );
+                    greenhouses.add(gh);
+                }
+
+                // Tạo đối tượng CentralController và thêm vào danh sách
+                CentralController cc = new CentralController(
+                        deviceSerial, firmwareVersion, sensorCount, batteryPercent,
+                        automaticMode, lastMaintenanceDate, sensorPins, greenhouses
+                );
+                controllers.add(cc);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return controllers;
+    }
+
+    // 2b. Duyệt và lấy ra GreenHouse có irrigationEnabled=true của AGR-X900
+    public void printActiveIrrigation(List&lt;CentralController&gt; list, String targetSerial) {
+        System.out.println("\n--- Các nhà kính đang bật tưới tiêu (irrigationEnabled=true) của " + targetSerial + " ---");
+        for (CentralController cc : list) {
+            if (cc.getDeviceSerial().equals(targetSerial)) {
+                for (GreenHouse gh : cc.getGreenhouses()) {
+                    if (gh.isIrrigationEnabled()) {
+                        System.out.println(gh);
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+===== objectmodelapi/JCCmain.java =====
+
+package objectmodelapi;
+
+import java.util.List;
+
+import entities.CentralController;
+
+public class JCCmain {
+    public static void main(String[] args) {
+        JsonCentralController processor = new JsonCentralController();
+        
+        // Giả sử file JSON tên là "data.json" được đặt ở thư mục gốc của project
+        String filePath = "json/data.json";
+
+        // Yêu cầu 2a: Đọc và print ra màn hình toàn bộ dữ liệu
+        List&lt;CentralController&gt; controllers = processor.readJsonFile(filePath);
+        System.out.println("=== TOÀN BỘ DỮ LIỆU ĐÃ BÓC TÁCH ===");
+        for (CentralController cc : controllers) {
+            System.out.println(cc);
+        }
+
+        // Yêu cầu 2b: Duyệt danh sách thiết bị AGR-X900 lấy irrigationEnabled=true
+        if (!controllers.isEmpty()) {
+            processor.printActiveIrrigation(controllers, "AGR-X900");
+        }
+    }
+}
+
+
+===== entities/CentralController.java =====
+
+package entities;
+
+import java.util.List;
+
+public class CentralController {
+    private String deviceSerial;
+    private String firmwareVersion;
+    private int sensorCount;
+    private double batteryPercent;
+    private boolean automaticMode;
+    private String lastMaintenanceDate;
+    private List&lt;Integer&gt; sensorPins;
+    private List&lt;GreenHouse&gt; greenhouses;
+
+    public CentralController(String deviceSerial, String firmwareVersion, int sensorCount, double batteryPercent, 
+                             boolean automaticMode, String lastMaintenanceDate, List&lt;Integer&gt; sensorPins, List&lt;GreenHouse&gt; greenhouses) {
+        this.deviceSerial = deviceSerial;
+        this.firmwareVersion = firmwareVersion;
+        this.sensorCount = sensorCount;
+        this.batteryPercent = batteryPercent;
+        this.automaticMode = automaticMode;
+        this.lastMaintenanceDate = lastMaintenanceDate;
+        this.sensorPins = sensorPins;
+        this.greenhouses = greenhouses;
+    }
+
+    public String getDeviceSerial() { return deviceSerial; }
+    public String getFirmwareVersion() { return firmwareVersion; }
+    public int getSensorCount() { return sensorCount; }
+    public double getBatteryPercent() { return batteryPercent; }
+    public boolean isAutomaticMode() { return automaticMode; }
+    public String getLastMaintenanceDate() { return lastMaintenanceDate; }
+    public List&lt;Integer&gt; getSensorPins() { return sensorPins; }
+    public List&lt;GreenHouse&gt; getGreenhouses() { return greenhouses; }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("CentralController [Serial: ").append(deviceSerial)
+          .append(", Firmware: ").append(firmwareVersion)
+          .append(", Battery: ").append(batteryPercent).append("%]\n");
+        sb.append("Sensor Pins: ").append(sensorPins).append("\n");
+        for (GreenHouse gh : greenhouses) {
+            sb.append(gh.toString()).append("\n");
+        }
+        return sb.toString();
+    }
+}
+
+
+===== entities/GreenHouse.java =====
+
+package entities;
+
+public class GreenHouse {
+    private int houseNumber;
+    private String cropType;
+    private double lengthMeter;
+    private double lightIntensity;
+    private int waterTankLiter;
+    private boolean irrigationEnabled;
+
+    public GreenHouse(int houseNumber, String cropType, double lengthMeter, double lightIntensity, int waterTankLiter, boolean irrigationEnabled) {
+        this.houseNumber = houseNumber;
+        this.cropType = cropType;
+        this.lengthMeter = lengthMeter;
+        this.lightIntensity = lightIntensity;
+        this.waterTankLiter = waterTankLiter;
+        this.irrigationEnabled = irrigationEnabled;
+    }
+
+    public int getHouseNumber() { return houseNumber; }
+    public String getCropType() { return cropType; }
+    public double getLengthMeter() { return lengthMeter; }
+    public double getLightIntensity() { return lightIntensity; }
+    public int getWaterTankLiter() { return waterTankLiter; }
+    public boolean isIrrigationEnabled() { return irrigationEnabled; }
+
+    @Override
+    public String toString() {
+        return String.format("\tGreenHouse [House: %d, Crop: %s, Length: %.1fm, Light: %.1f, Water: %dL, Irrigation: %b]",
+                houseNumber, cropType, lengthMeter, lightIntensity, waterTankLiter, irrigationEnabled);
+    }
+}
+
+
+===== entities/SpaceMission.java =====
+
+package entities;
+
+public class SpaceMission {
+    private String missionCode;
+    private String missionTitle;
+    private int priority;
+    private String launchDate;
+    private double estimatedCost;
+    private boolean completed;
+
+    public SpaceMission(String missionCode, String missionTitle, int priority, String launchDate, double estimatedCost, boolean completed) {
+        this.missionCode = missionCode;
+        this.missionTitle = missionTitle;
+        this.priority = priority;
+        this.launchDate = launchDate;
+        this.estimatedCost = estimatedCost;
+        this.completed = completed;
+    }
+
+    // Getters
+    public String getMissionCode() { return missionCode; }
+    public String getMissionTitle() { return missionTitle; }
+    public int getPriority() { return priority; }
+    public String getLaunchDate() { return launchDate; }
+    public double getEstimatedCost() { return estimatedCost; }
+    public boolean isCompleted() { return completed; }
+}
+
+
+===== entities/SpaceModule.java =====
+
+package entities;
+import java.util.List;
+
+public class SpaceModule {
+    private String stationCode;
+    private String stationName;
+    private int orbitNumber;
+    private int crewCapacity;
+    private double energyLevel;
+    private List&lt;String&gt; crewMembers;
+    private List&lt;SpaceMission&gt; missions;
+
+    public SpaceModule(String stationCode, String stationName, int orbitNumber, int crewCapacity, double energyLevel, List&lt;String&gt; crewMembers, List&lt;SpaceMission&gt; missions) {
+        this.stationCode = stationCode;
+        this.stationName = stationName;
+        this.orbitNumber = orbitNumber;
+        this.crewCapacity = crewCapacity;
+        this.energyLevel = energyLevel;
+        this.crewMembers = crewMembers;
+        this.missions = missions;
+    }
+
+    // Getters
+    public String getStationCode() { return stationCode; }
+    public String getStationName() { return stationName; }
+    public int getOrbitNumber() { return orbitNumber; }
+    public int getCrewCapacity() { return crewCapacity; }
+    public double getEnergyLevel() { return energyLevel; }
+    public List&lt;String&gt; getCrewMembers() { return crewMembers; }
+    public List&lt;SpaceMission&gt; getMissions() { return missions; }
+}
+
+</pre>
+</body>
+</html>
