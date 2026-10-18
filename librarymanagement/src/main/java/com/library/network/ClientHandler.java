@@ -1,5 +1,4 @@
 package com.library.network;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -7,6 +6,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Pattern;
 
 public class ClientHandler implements Runnable {
 
@@ -19,7 +19,14 @@ public class ClientHandler implements Runnable {
         this.router = new RequestRouter();
     }
 
+    private static final Pattern SENSITIVE = Pattern.compile(
+                "(\"(?:password|oldPassword|newPassword|confirmPassword|matKhau)\"\\s*:\\s*\")"
+                + "((?:[^\"\\\\]|\\\\.)*)(\")"
+        );
 
+    private static String mask(String json) {
+        return SENSITIVE.matcher(json).replaceAll("$1***$3");
+        }
     @Override
     public void run() {
         String clientAddress =
@@ -56,7 +63,7 @@ public class ClientHandler implements Runnable {
                         "📥 [Request từ "
                                 + clientAddress
                                 + "]: "
-                                + inputLine
+                                + mask(inputLine)
                 );
 
                 // Điều hướng xử lý request và lấy chuỗi JSON response

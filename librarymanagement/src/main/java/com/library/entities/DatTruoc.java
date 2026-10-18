@@ -1,9 +1,17 @@
 package com.library.entities;
 
-import jakarta.persistence.*;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "DatTruoc")
@@ -27,14 +35,26 @@ public class DatTruoc implements Serializable {
 
     @Column(name = "TrangThai", length = 30)
     private String trangThai;
+    // Cuốn sách vật lý được khóa cho lượt đặt này (null khi còn WAITING)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MaCuonSach")
+    private CuonSach cuonSach;
 
+    @Column(name = "NgayThongBao")
+    private LocalDateTime ngayThongBao;
+
+    
 
     public DatTruoc() {
     }
 
 
     // Getters & Setters
+    public CuonSach getCuonSach() { return cuonSach; }
+    public void setCuonSach(CuonSach cuonSach) { this.cuonSach = cuonSach; }
 
+    public LocalDateTime getNgayThongBao() { return ngayThongBao; }
+    public void setNgayThongBao(LocalDateTime ngayThongBao) { this.ngayThongBao = ngayThongBao; }
     public Integer getMaDatTruoc() {
         return maDatTruoc;
     }

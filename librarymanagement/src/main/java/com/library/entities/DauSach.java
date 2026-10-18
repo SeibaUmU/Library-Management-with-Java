@@ -1,8 +1,16 @@
 package com.library.entities;
 
-import jakarta.persistence.*;
-
 import java.io.Serializable;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "DauSach")
@@ -30,14 +38,30 @@ public class DauSach implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MaTL")
     private TheLoai theLoai;
+    @Column(name = "ViTri", length = 100)
+    private String viTri;
 
+    @Column(name = "TongSoLuong")
+    private Integer tongSoLuong = 0;
+
+    @Column(name = "SoLuongKhaDung")
+    private Integer soLuongKhaDung = 0;
+
+    
 
     public DauSach() {
     }
 
 
     // Getters & Setters
+    public String getViTri() { return viTri; }
+    public void setViTri(String viTri) { this.viTri = viTri; }
 
+    public Integer getTongSoLuong() { return tongSoLuong; }
+    public void setTongSoLuong(Integer tongSoLuong) { this.tongSoLuong = tongSoLuong; }
+
+    public Integer getSoLuongKhaDung() { return soLuongKhaDung; }
+    public void setSoLuongKhaDung(Integer soLuongKhaDung) { this.soLuongKhaDung = soLuongKhaDung; }
     public Integer getMaDauSach() {
         return maDauSach;
     }

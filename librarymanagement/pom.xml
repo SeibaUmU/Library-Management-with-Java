@@ -36,7 +36,11 @@
             <artifactId>parsson</artifactId>
             <version>1.1.7</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
         
     </dependencies>
 </project>

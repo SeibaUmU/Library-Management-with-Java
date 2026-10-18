@@ -1,8 +1,14 @@
 package com.library.entities;
 
-import jakarta.persistence.*;
-
 import java.io.Serializable;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "CuonSach")
@@ -16,8 +22,8 @@ public class CuonSach implements Serializable {
     @JoinColumn(name = "MaDauSach")
     private DauSach dauSach;
 
-    @Column(name = "TinhTrangValLy", length = 100)
-    private String tinhTrangValLy;
+    @Column(name = "TinhTrangVatLy", length = 100)
+    private String tinhTrangVatLy;
 
     @Column(name = "TrangThai", length = 30)
     private String trangThai;
@@ -45,12 +51,12 @@ public class CuonSach implements Serializable {
         this.dauSach = dauSach;
     }
 
-    public String getTinhTrangValLy() {
-        return tinhTrangValLy;
+    public String getTinhTrangVatLy() {
+        return tinhTrangVatLy;
     }
 
-    public void setTinhTrangValLy(String tinhTrangValLy) {
-        this.tinhTrangValLy = tinhTrangValLy;
+    public void setTinhTrangVatLy(String tinhTrangVatLy) {
+        this.tinhTrangVatLy = tinhTrangVatLy;
     }
 
     public String getTrangThai() {

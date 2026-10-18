@@ -10,21 +10,29 @@ public class CauHinhRepository {
     public CauHinh getCauHinh() {
         try (EntityManager em = EntityManagerUtil.getEntityManager()) {
 
-            CauHinh ch =
-                    em.find(
-                            CauHinh.class,
-                            1
-                    );
+            CauHinh ch = em.find(CauHinh.class, 1);
+            boolean canLuu = false;
 
             if (ch == null) {
-
                 ch = new CauHinh();
-
                 ch.setMaCauHinh(1);
                 ch.setSoSachToiDa(5);
                 ch.setSoNgayMuonToiDa(14);
                 ch.setTienPhatNgay(5000.0);
+                canLuu = true;
+            }
 
+            if (ch.getSoLanGiaHanToiDa() == null) {
+                ch.setSoLanGiaHanToiDa(2);
+                canLuu = true;
+            }
+
+            if (ch.getSoNgayGiuSachDatTruoc() == null) {
+                ch.setSoNgayGiuSachDatTruoc(3);
+                canLuu = true;
+            }
+
+            if (canLuu) {
                 saveCauHinh(ch);
             }
 

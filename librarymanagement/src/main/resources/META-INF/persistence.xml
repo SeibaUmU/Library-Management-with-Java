@@ -4,25 +4,25 @@
              xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
              version="3.0">
 
-    <!-- Persistence Unit dùng để khởi tạo EntityManagerFactory -->
+    <!-- Persistence Unit dùng để khởi tạo entitiesManagerFactory -->
     <persistence-unit name="LibraryPU" transaction-type="RESOURCE_LOCAL">
         <!-- Khai báo Provider thực thi (Hibernate) -->
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
-        <!-- Khai báo danh sách các lớp Entity trong hệ thống (Optional trong Java SE nhưng nên ghi rõ) -->
-        <class>com.library.entity.VaiTro</class>
-        <class>com.library.entity.NguoiDung</class>
-        <class>com.library.entity.TheDocGia</class>
-        <class>com.library.entity.TacGia</class>
-        <class>com.library.entity.TheLoai</class>
-        <class>com.library.entity.NhaXuatBan</class>
-        <class>com.library.entity.DauSach</class>
-        <class>com.library.entity.CuonSach</class>
-        <class>com.library.entity.PhieuMuon</class>
-        <class>com.library.entity.ChiTietPhieuMuon</class>
-        <class>com.library.entity.PhieuPhat</class>
-        <class>com.library.entity.DatTruoc</class>
-        <class>com.library.entity.CauHinh</class>
+        <!-- Khai báo danh sách các lớp entities trong hệ thống (Optional trong Java SE nhưng nên ghi rõ) -->
+        <class>com.library.entities.VaiTro</class>
+        <class>com.library.entities.NguoiDung</class>
+        <class>com.library.entities.TheDocGia</class>
+        <class>com.library.entities.TacGia</class>
+        <class>com.library.entities.TheLoai</class>
+        <class>com.library.entities.NhaXuatBan</class>
+        <class>com.library.entities.DauSach</class>
+        <class>com.library.entities.CuonSach</class>
+        <class>com.library.entities.PhieuMuon</class>
+        <class>com.library.entities.ChiTietPhieuMuon</class>
+        <class>com.library.entities.PhieuPhat</class>
+        <class>com.library.entities.DatTruoc</class>
+        <class>com.library.entities.CauHinh</class>
 
         <properties>
             <!-- 1. Cấu hình Kết nối CSDL (Sql server) -->
