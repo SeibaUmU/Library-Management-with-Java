@@ -311,7 +311,7 @@ Các quy ước đi kèm:
 ```
 
 * **Hết sách (5a):** khi `soLuongKhaDung` = `0` thì `choPhepDatTruoc` = `true` và `message` = `Sách hiện tại đã được mượn hết`. Client dựa vào đó hiện nút **Đặt trước sách** (gọi `RESERVE_BOOK`, mục 3.5.1).
-* **Lỗi:** `BAD_REQUEST` — `Thiếu tham số maDauSach!`; `ERROR` — `Không tìm thấy đầu sách mã: <maDauSach>`
+* **Lỗi:** `BAD_REQUEST` — `Thiếu hoặc sai tham số: maDauSach`; `ERROR` — `Không tìm thấy đầu sách mã: <maDauSach>`
 
 #### 3.2.3. Lấy danh mục dùng chung (`GET_CATEGORIES`)
 
@@ -347,7 +347,7 @@ Các quy ước đi kèm:
 Quyền của toàn bộ mục này: **LIBRARIAN**.
 
 #### 3.3.1. Thêm đầu sách (`ADD_BOOK_TITLE`)
-
+Bonus: tenSach, maTG, maNXB, maTL bắt buộc (cột NOT NULL trong CSDL; lấy danh sách từ GET_CATEGORIES), giaTien ≥ 0, viTri tùy chọn. Thêm lỗi: Giá tiền phải lớn hơn hoặc bằng 0; Không tìm thấy tác giả / nhà xuất bản / thể loại mã: X. Sửa tham số thiếu thành Thiếu hoặc sai tham số: <tên>
 * **Mô tả:** Thêm đầu sách mới. `tenSach` bắt buộc, `giaTien` ≥ 0; các khóa ngoại và `viTri` có thể bỏ trống. Server đặt `tongSoLuong` = 0 và `soLuongKhaDung` = 0 (cuốn vật lý được nhập qua `ADD_BOOK_COPIES`).
 * **Request:**
 
@@ -433,10 +433,10 @@ Quyền của toàn bộ mục này: **LIBRARIAN**.
 }
 ```
 
-* **Lỗi:** `ERROR` — `Mã cuốn sách đã tồn tại: BARCODE-10`
+* **Lỗi:** `ERROR` — `Mã cuốn sách đã tồn tại: BARCODE-10`, Thêm lỗi Danh sách mã cuốn sách trống! và Không tìm thấy đầu sách mã: X. Mã trùng ngay trong danh sách cũng báo Mã cuốn sách đã tồn tại
 
 #### 3.3.5. Cập nhật tình trạng cuốn sách vật lý (`UPDATE_COPY`)
-
+Bonus: Thêm lỗi: Thiếu tham số: tinhTrangVatLy | trangThai; Thiếu hoặc sai tham số: trangThai; Không tìm thấy cuốn sách mã: X
 * **Mô tả:** Đổi `tinhTrangVatLy` (Mới, Tốt, Cũ, Hỏng nhẹ, Thanh lý...). `trangThai` (tùy chọn) chỉ nhận `AVAILABLE | DAMAGED | LOST` và **chỉ đổi được khi cuốn không ở `BORROWED` / `RESERVED`**. Cuốn thanh lý: đặt `tinhTrangVatLy` = `Thanh lý`, `trangThai` = `DAMAGED`.
 * **Request:**
 
@@ -753,7 +753,7 @@ Quyền của toàn bộ mục này: **LIBRARIAN**.
 * **Xử lý:** `NgayHenTra` mới = `NgayHenTra` cũ + `soNgayMuonToiDa`; `SoLanGiaHan` + 1.
 
 #### 3.4.6. Lịch sử mượn / sách đang mượn (`GET_BORROW_HISTORY`)
-
+Bonus: Khi rỗng: độc giả nhận Bạn chưa có giao dịch mượn sách nào, thủ thư nhận Không có giao dịch phù hợp
 * **UC:** UC-08 (Độc giả xem lịch sử), UC-02 (Thủ thư tra cứu sách đang mượn để trả) · **Quyền:** READER, LIBRARIAN
 * **Mô tả:** `tab` = `BORROWING` (đang mượn) hoặc `RETURNED` (lịch sử trả).
   * **READER:** Server luôn ép theo thẻ của chính mình (bỏ qua `maThe`, `maPhieuMuon`, `maCuonSach`).
@@ -989,7 +989,7 @@ Luồng 4 giai đoạn trong tài liệu phân tích được ánh xạ như sau
 ```
 
 #### 3.5.5. Thủ thư khóa cuốn sách cho lượt chờ (`ASSIGN_RESERVATION`)
-
+bonus: Trường hợp gán thẳng cuốn đã sẵn sàng: ngayHenTraCuaCuon = null, message Đã giữ cuốn sách tại quầy và thông báo cho độc giả
 * **UC:** UC-07 (giai đoạn 2) · **Quyền:** LIBRARIAN
 * **Mô tả:** `maCuonSach` tùy chọn; bỏ trống thì Server chọn cuốn `BORROWED` có ngày hẹn trả gần nhất.
 * **Request:**
@@ -1064,7 +1064,7 @@ Không có action riêng. Luồng chạy phía Server khi `PROCESS_RETURN_BOOK` 
 * **Lỗi `ERROR`:** `Chi tiết phiếu mượn không tồn tại`; `Cuốn sách không trễ hạn` (khi `LATE` nhưng chưa trễ)
 
 #### 3.6.2. Lập phiếu phạt (`CREATE_FINE`)
-
+Bonus: Thêm lỗi Cuốn sách không trễ hạn và Dòng mượn này đã có phiếu phạt trễ hạn (cho LATE). Ghi chú LOST khi chưa trả: nếu dòng mượn đang quá hạn thì đồng thời sinh thêm phiếu phạt trễ hạn
 * **Quyền:** LIBRARIAN
 * **Mô tả:** Lập phiếu phạt riêng lẻ. Trường hợp trả sách có hỏng / mất nên khai báo ngay `viPham` trong `PROCESS_RETURN_BOOK`; action này dùng khi cần lập phiếu bổ sung. `soTienPhat` bỏ trống thì dùng số gợi ý; `daThanhToan` mặc định `false`. Server ghi `MaThuThu` từ phiên, `MaCuonSach` và `MaND` (độc giả bị phạt) suy ra từ `maCTPM`.
 * **Request:**
@@ -1172,7 +1172,7 @@ Không có action riêng. Luồng chạy phía Server khi `PROCESS_RETURN_BOOK` 
 ---
 
 ## 3.7. Quản Lý Độc Giả & Thủ Thư (UC-11, UC-15)
-
+bonus: Thêm kiểm tra đầu vào: Họ tên không hợp lệ (rỗng hoặc > 100 ký tự), Email không hợp lệ (thiếu @ hoặc > 100), Số điện thoại không hợp lệ (8–15 chữ số), Mật khẩu không hợp lệ (tối thiểu 6 ký tự)!. Các trường này cũng được kiểm tra khi sửa (UPDATE_READER, UPDATE_LIBRARIAN); matKhau của UPDATE_LIBRARIAN tối thiểu 6 ký tự
 ### 3.7.1. Độc giả - Thẻ (UC-11) · Quyền: LIBRARIAN
 
 #### Danh sách độc giả (`GET_READERS`)
@@ -1421,7 +1421,7 @@ Các action thao tác trên `NguoiDung` có `MaVaiTro` = 2.
 * **Lỗi (5a):** `BAD_REQUEST` — `Tham số cấu hình phải là số lớn hơn 0` (chữ, số âm, 0, để trống). Server giữ nguyên tham số cũ.
 
 #### 3.8.3. Xem báo cáo thống kê (`GET_REPORTS`)
-
+bonus: limit giới hạn 1–100; groupBy mặc định MONTH; thêm message rỗng của OVERDUE_READERS nếu bạn dùng chỉnh sửa ở phần đầu
 * **UC:** UC-16 · **Quyền:** ADMIN, LIBRARIAN
 * **Mô tả:** Chọn loại báo cáo bằng `loaiBaoCao`. Bỏ trống `loaiBaoCao` = `TOP_BOOKS` (tương thích bản cũ). `tuNgay` / `denNgay` bỏ trống = toàn bộ thời gian.
 * **Request:**
